@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+    </head>
+    <body ng-app="app">
+        <div ng-controller="BatoBatoPikController">
+            <button type="button" ng-click="generate(sampleSize)" ng-hide="generated">Simulate</button>
+            <button type="button" ng-click="simulate(genes)" ng-show="generated && !simulating">Simulate</button>
+            <button type="button" ng-click="stopSimulating()" ng-show="simulating">Stop</button>
+            <br>
+            Generation: {{generation}}<br>
+            Best score so far: {{topHealth}}<br>
+            The goal is to reach {{goal}}.<br>
+            <table ng-show="generated">
+                <tr>
+                    <th>#</th>
+                    <th>Health</th>
+                </tr>
+                <tr ng-repeat="dna in genes">
+                    <td>DNA {{$index}} = </td>
+                    <td>{{dna.health}}</td>
+                </tr>
+            </table>
+            <div class="">
+                <label>The top gene so far</label>:<br> {{topGene}}
+            </div>
+        </div>
+        <script type="text/javascript" src="brain.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+        <script type="text/javascript" src="script.js"></script>
+    </body>
+</html>
