@@ -11,12 +11,12 @@
             <button type="button" ng-click="stopSimulating()" ng-show="simulating">Stop</button>
             <br>
             Generation: {{generation}}<br>
-            Best score so far: {{topHealth}}<br>
-            The goal is to reach {{goal}}.<br>
+            Correct answers in a row: {{topHealth}}<br>
+            The goal is {{goal}}.<br>
             <table ng-show="generated">
                 <tr>
                     <th>#</th>
-                    <th>Health</th>
+                    <th>Correct answers in a row</th>
                 </tr>
                 <tr ng-repeat="dna in genes">
                     <td>DNA {{$index}} = </td>
