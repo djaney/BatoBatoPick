@@ -6,17 +6,17 @@
     </head>
     <body ng-app="app">
         <div ng-controller="BatoBatoPikController">
-            <button type="button" ng-click="generate(sampleSize)" ng-hide="generated">Simulate</button>
-            <button type="button" ng-click="simulate(genes)" ng-show="generated && !simulating">Simulate</button>
+            <button type="button" ng-click="generate(sampleSize)" ng-hide="generated">Simulate evolution</button>
+            <button type="button" ng-click="simulate(genes)" ng-show="generated && !simulating">Simulate evolution</button>
             <button type="button" ng-click="stopSimulating()" ng-show="simulating">Stop</button>
             <br>
             Generation: {{generation}}<br>
-            Best score so far: {{topHealth}}<br>
+            AI answered correctly {{topHealth}} times in a row.<br>
             The goal is to reach {{goal}}.<br>
             <table ng-show="generated">
                 <tr>
                     <th>#</th>
-                    <th>Health</th>
+                    <th>Correct answers in a row</th>
                 </tr>
                 <tr ng-repeat="dna in genes">
                     <td>DNA {{$index}} = </td>
