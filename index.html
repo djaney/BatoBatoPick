@@ -6,27 +6,43 @@
     </head>
     <body ng-app="app">
         <div ng-controller="BatoBatoPikController">
-            <button type="button" ng-click="generate(sampleSize)" ng-hide="generated">Simulate</button>
-            <button type="button" ng-click="simulate(genes)" ng-show="generated && !simulating">Simulate</button>
+            <button type="button" ng-click="generate(sampleSize)" ng-hide="generated">Learn</button>
+            <button type="button" ng-click="simulate(genes)" ng-show="generated && !simulating">Learn</button>
             <button type="button" ng-click="stopSimulating()" ng-show="simulating">Stop</button>
             <br>
             Generation: {{generation}}<br>
-            Correct answers in a row: {{topHealth}}<br>
-            The goal is {{goal}}.<br>
+
             <table ng-show="generated">
                 <tr>
-                    <th>#</th>
+                    <th>Rank</th>
                     <th>Correct answers in a row</th>
                 </tr>
                 <tr ng-repeat="dna in genes">
-                    <td>DNA {{$index}} = </td>
+                    <td>DNA #{{$index+1}}</td>
                     <td>{{dna.health}}</td>
                 </tr>
             </table>
+
+            <ol>
+                <li ng-show="topHealth >=1">AI learned how to beat rock</li>
+                <li ng-show="topHealth >=2">AI learned how to beat paper</li>
+                <li ng-show="topHealth >=3">AI learned how to beat scissor</li>
+            </ol>
+            <div  ng-show="topHealth >=3">
+                AI learned how to play rock paper scissors.
+            </div>
+            <p>
+                Try playing with the AI before and after it learned.
+            </p>
             <div class="">
-                <label>The top gene so far</label>:<br> {{topGene}}
+                <button type="button" ng-click="try(1)">Rock</button>
+                <button type="button" ng-click="try(2)">Paper</button>
+                <button type="button" ng-click="try(3)">Scissors</button><br>
+                AI: {{tryAnswer}}
             </div>
         </div>
+        <hr>
+        <a target="_blank" href="https://en.wikipedia.org/wiki/Genetic_algorithm">https://en.wikipedia.org/wiki/Genetic_algorithm</a>
         <script type="text/javascript" src="brain.js"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
         <script type="text/javascript" src="script.js"></script>
