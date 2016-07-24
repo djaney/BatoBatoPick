@@ -1,5 +1,42 @@
 angular.module('app',[])
-.factory('Util', function(){
+.factory('Game', function(NeuralNetwork){
+    return {
+        simulate: function(genes){
+            var $this = this;
+            angular.forEach(genes, function(dna){
+                var alive = true;
+                dna.health = 0;
+                for(var rand = 1;rand <=3 && alive; rand++) {
+                    var net = new brain.NeuralNetwork();
+                    net.fromJSON(dna.net);
+
+                    var input = {
+                        rock: rand==1?1:0,
+                        paper: rand==2?1:0,
+                        scissor: rand==3?1:0
+                    };
+                    var output = net.run(input);
+                    if(1 == rand && output.paper > output.rock && output.paper > output.scissor){
+                        dna.message = NeuralNetwork.maxKey(output)+' vs '+NeuralNetwork.maxKey(input)+' = win';
+                        dna.health++;
+                    }else
+                    if(2 == rand && output.scissor > output.rock && output.scissor > output.paper){
+                        dna.message = NeuralNetwork.maxKey(output)+' vs '+NeuralNetwork.maxKey(input)+' = win';
+                        dna.health++;
+                    }else
+                    if(3 == rand && output.rock > output.paper && output.rock > output.scissor){
+                        dna.message = NeuralNetwork.maxKey(output)+' vs '+NeuralNetwork.maxKey(input)+' = win';
+                        dna.health++;
+                    }else{
+                        dna.message = NeuralNetwork.maxKey(output)+' vs '+NeuralNetwork.maxKey(input)+' = lose';
+                        alive = false;
+                    }
+                };
+            });
+        }
+    }
+})
+.factory('NeuralNetwork', function(){
     return {
         unflatten: function(net, flats){
             var strand = [];
@@ -42,41 +79,7 @@ angular.module('app',[])
             }
             return idx;
         },
-        simulate: function(genes){
-            var $this = this;
-            angular.forEach(genes, function(dna){
-                var alive = true;
-                dna.health = 0;
-                do {
-                    var net = new brain.NeuralNetwork();
-                    net.fromJSON(dna.net);
 
-                    var rand = Math.floor((Math.random() * 3) + 1);
-                    var input = {
-                        rock: rand==1?1:0,
-                        paper: rand==2?1:0,
-                        scissor: rand==3?1:0
-                    };
-                    var output = net.run(input);
-                    if(1 == rand && output.paper > output.rock && output.paper > output.scissor){
-                        dna.message = $this.maxKey(output)+' vs '+$this.maxKey(input)+' = win';
-                    }else
-                    if(2 == rand && output.scissor > output.rock && output.scissor > output.paper){
-                        dna.message = $this.maxKey(output)+' vs '+$this.maxKey(input)+' = win';
-                    }else
-                    if(3 == rand && output.rock > output.paper && output.rock > output.scissor){
-                        dna.message = $this.maxKey(output)+' vs '+$this.maxKey(input)+' = win';
-                    }else{
-                        dna.message = $this.maxKey(output)+' vs '+$this.maxKey(input)+' = lose';
-                        alive = false;
-                    }
-                    dna.health++;
-                    if(dna.health > 100){
-                        break;
-                    }
-                } while (alive);
-            });
-        },
         learn: function(genes){
             $this = this;
             genes.sort(function(a, b) {
@@ -113,16 +116,24 @@ angular.module('app',[])
         }
     }
 })
-.controller('BatoBatoPikController', function($scope, Util, $interval){
+.controller('BatoBatoPikController', function($scope, NeuralNetwork, Game, $interval){
     $scope.generated = false;
     $scope.simulating = false;
     $scope.generation = 0;
     $scope.sampleSize = 10;
     $scope.simulateMultiplier = 1000;
     $scope.topHealth = 0;
-    $scope.goal = 100;
-    $scope.topGene = {};
+    $scope.goal = 3;
     $scope.genes = [];
+    var initialNet = new brain.NeuralNetwork();
+    initialNet.train([
+        {
+            input: { rock: 0.5, paper: 0.5, scissor: 0.5 },
+            output: { rock: 0.5, paper: 0.5, scissor: 0.5 }
+        }
+    ]);
+    $scope.topGene = initialNet.toJSON();
+
     $scope.generate = function(count){
         $scope.generation = 0;
         $scope.genes = [];
@@ -150,17 +161,21 @@ angular.module('app',[])
     $scope.simulate = function(genes){
         $scope.simulating = true;
         promise = $interval(function(){
-            for (var i = 0; i < 500; i++) {
+            for (var i = 0; i < $scope.simulateMultiplier; i++) {
+
+
+                Game.simulate(genes);
+                NeuralNetwork.learn(genes);
+
                 if(genes[0].health > $scope.topHealth){
                     $scope.topHealth = genes[0].health;
                     $scope.topGene = genes[0].net;
                 }
-                if(genes[0].health > $scope.goal){
+                if(genes[0].health >= $scope.goal){
                     $scope.stopSimulating();
                     break;
                 }
-                Util.simulate(genes);
-                Util.learn(genes);
+
                 $scope.generation++;
             }
 
@@ -169,5 +184,27 @@ angular.module('app',[])
     $scope.stopSimulating  = function(){
         $scope.simulating = false;
         $interval.cancel(promise);
+    }
+
+    $scope.try = function(input){
+        var nnInput = {
+            rock: input==1?1:0,
+            paper: input==2?1:0,
+            scissor: input==3?1:0
+        };
+        var net = new brain.NeuralNetwork();
+        net.fromJSON($scope.topGene);
+
+        var output = net.run(nnInput);
+        console.log(nnInput, output);
+        if(output.paper > output.rock && output.paper > output.scissor){
+            $scope.tryAnswer = 'Paper!';
+        }else
+        if(output.scissor > output.rock && output.scissor > output.paper){
+            $scope.tryAnswer = 'Scissor!';
+        }else
+        if(output.rock > output.paper && output.rock > output.scissor){
+            $scope.tryAnswer = 'Rock!';
+        }
     }
 });
